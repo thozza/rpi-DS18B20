@@ -31,9 +31,9 @@ def check_required_kmods():
     - w1-gpio
     - w1-therm
     """
-    if (subprocess.call("lsmod | grep w1_gpio", shell=True) != 0):
+    if (subprocess.call("lsmod | grep w1_gpio", stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT, shell=True) != 0):
         raise RuntimeError("\"w1-gpio\" kernel module is not loaded!")
-    if (subprocess.call("lsmod | grep w1_therm", shell=True) != 0):
+    if (subprocess.call("lsmod | grep w1_therm", stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT, shell=True) != 0):
         raise RuntimeError("\"w1-therm\" kernel module is not loaded!")
 
 
@@ -45,9 +45,9 @@ def load_required_kmods():
     """
     if os.getuid() != 0:
         raise RuntimeError("Need to root to load kernel modules")
-    if (subprocess.call("modprobe w1-gpio") != 0):
+    if (subprocess.call("modprobe w1-gpio", stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT) != 0):
         raise RuntimeError("Failed to load \"w1-gpio\" kernel module!")
-    if (subprocess.call("modprobe w1-therm") != 0):
+    if (subprocess.call("modprobe w1-therm", stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT) != 0):
         raise RuntimeError("Failed to load \"w1-therm\" kernel module!")
 
 
