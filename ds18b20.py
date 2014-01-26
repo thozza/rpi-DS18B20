@@ -51,19 +51,27 @@ def load_required_kmods():
         raise RuntimeError("Failed to load \"w1-therm\" kernel module!")
 
 
+def get_available_sensors_ids():
+    """
+    Returns list with IDs of available DS18B20 sensors. The sensor appears in
+    /sys/devices/w1_bus_master1/ as "28-xxxxxxxxxxxx". The ID is the 12 characters
+    part after "28-".
+    """
+    devices = glob.glob("/sys/devices/w1_bus_master1/28-*")
+    ids = [ os.path.split(x)[1][3:] for x in devices ]
+    return ids
+
+
 class sensor(object):
     sysfs_base_path = "/sys/bus/w1/devices/"
 
-    def __init__(self):
+    def __init__(self, sensor_id=""):
         check_required_kmods()
-        # TODO: should add function for getting the list of devices and
-        #       then accept the path in the constructor
-        devices = glob.glob("/sys/devices/w1_bus_master1/28-*/w1_slave")
-        if not devices:
+        dev_path = "/sys/devices/w1_bus_master1/28-" + sensor_id + "/w1_slave"
+        if not os.path.isfile(dev_path):
             raise RuntimeError(
-                "No DS18B20 device found in '/sys/devices/w1_bus_master1'!")
-        # use the first one
-        self.device_path = devices[0]
+                "No DS18B20 device with ID '" + sensor_id + "' found in '/sys/devices/w1_bus_master1'!")
+        self.device_path = dev_path
 
     def read_temperature(self):
         """
